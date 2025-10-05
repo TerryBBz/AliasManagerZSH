@@ -105,7 +105,7 @@ async function main() {
         break;
 
       case 'install':
-        await installer.addToZshrc();
+        await installer.addToShellConfig();
         break;
 
       case 'uninstall':

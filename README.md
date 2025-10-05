@@ -1,6 +1,12 @@
 # 📦 Alias Manager ZSH
 
-Un outil CLI puissant pour gérer et synchroniser vos alias ZSH entre toutes vos machines via Git. Version publique sans données personnelles.
+Un outil CLI puissant multiplateforme pour gérer et synchroniser vos alias shell (ZSH, Bash, Fish) entre toutes vos machines via Git. Version publique sans données personnelles.
+
+## 🌍 Compatibilité
+
+- **Systèmes d'exploitation** : Linux, macOS, Windows
+- **Shells supportés** : ZSH, Bash, Fish
+- **Node.js** : >= 16.0.0
 
 ## 🚀 Installation rapide
 
@@ -15,12 +21,14 @@ cd AliasManagerZSH
 npm install && npm link
 
 # 3. Configurer votre environnement
-alias-manager setup-zshrc    # Restaurer .zshrc avec vos fonctions
-alias-manager install        # Ajouter l'intégration des alias
+alias-manager setup-zshrc    # Restaurer .zshrc avec vos fonctions (ZSH uniquement)
+alias-manager install        # Ajouter l'intégration des alias (détection automatique du shell)
 alias-manager sync           # Synchroniser les alias existants
 
-# 4. Rechargement
-source ~/.zshrc
+# 4. Rechargement (selon votre shell)
+# Pour ZSH: source ~/.zshrc
+# Pour Bash: source ~/.bashrc  
+# Pour Fish: source ~/.config/fish/config.fish
 ```
 
 ### **Sur une nouvelle machine**

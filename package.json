@@ -1,7 +1,7 @@
 {
   "name": "alias-manager-zsh",
   "version": "1.0.3",
-  "description": "CLI tool to manage ZSH aliases with groups, enable/disable, and backup/restore functionality - Clean version for public use",
+  "description": "Cross-platform CLI tool to manage shell aliases (ZSH, Bash, Fish) with groups, enable/disable, and backup/restore functionality - Clean version for public use",
   "type": "module",
   "main": "src/index.js",
   "bin": {
@@ -14,10 +14,16 @@
   },
   "keywords": [
     "zsh",
+    "bash",
+    "fish",
     "aliases",
     "cli",
     "terminal",
-    "shell"
+    "shell",
+    "cross-platform",
+    "linux",
+    "macos",
+    "windows"
   ],
   "author": "MacTB",
   "license": "MIT",
@@ -26,5 +32,10 @@
   },
   "engines": {
     "node": ">=16.0.0"
-  }
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ]
 }

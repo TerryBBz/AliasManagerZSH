@@ -18,18 +18,43 @@ export class Installer {
     this.aliasFilePath = path.join(this.configDir, 'aliases.sh');
   }
 
-  async checkZshInstalled() {
+  async checkShellInstalled() {
     try {
       const shell = process.env.SHELL || '';
-      return shell.includes('zsh');
+      return {
+        shell: shell,
+        isZsh: shell.includes('zsh'),
+        isBash: shell.includes('bash'),
+        isFish: shell.includes('fish'),
+        isSupported: shell.includes('zsh') || shell.includes('bash') || shell.includes('fish')
+      };
     } catch {
-      return false;
+      return {
+        shell: '',
+        isZsh: false,
+        isBash: false,
+        isFish: false,
+        isSupported: false
+      };
     }
   }
 
-  async checkZshrcExists() {
+  async checkConfigFileExists() {
     try {
-      return await fs.pathExists(this.zshrcPath);
+      const shellInfo = await this.checkShellInstalled();
+      let configPath;
+      
+      if (shellInfo.isZsh) {
+        configPath = this.zshrcPath;
+      } else if (shellInfo.isBash) {
+        configPath = path.join(this.homeDir, '.bashrc');
+      } else if (shellInfo.isFish) {
+        configPath = path.join(this.homeDir, '.config', 'fish', 'config.fish');
+      } else {
+        return false;
+      }
+      
+      return await fs.pathExists(configPath);
     } catch {
       return false;
     }
@@ -37,40 +62,77 @@ export class Installer {
 
   async isAlreadyIntegrated() {
     try {
-      const zshrcContent = await fs.readFile(this.zshrcPath, 'utf8');
-      return zshrcContent.includes('# Alias Manager - Chargement automatique des alias');
+      const shellInfo = await this.checkShellInstalled();
+      let configPath;
+      
+      if (shellInfo.isZsh) {
+        configPath = this.zshrcPath;
+      } else if (shellInfo.isBash) {
+        configPath = path.join(this.homeDir, '.bashrc');
+      } else if (shellInfo.isFish) {
+        configPath = path.join(this.homeDir, '.config', 'fish', 'config.fish');
+      } else {
+        return false;
+      }
+      
+      const configContent = await fs.readFile(configPath, 'utf8');
+      return configContent.includes('# Alias Manager - Chargement automatique des alias');
     } catch {
       return false;
     }
   }
 
-  async addToZshrc() {
+  async addToShellConfig() {
     try {
       // Vérifications préalables
-      if (!await this.checkZshInstalled()) {
-        throw new Error('ZSH n\'est pas installé ou n\'est pas votre shell par défaut');
+      const shellInfo = await this.checkShellInstalled();
+      if (!shellInfo.isSupported) {
+        throw new Error('Aucun shell supporté détecté (ZSH, Bash, Fish requis)');
       }
 
-      if (!await this.checkZshrcExists()) {
-        throw new Error('Le fichier .zshrc n\'existe pas');
+      if (!await this.checkConfigFileExists()) {
+        throw new Error('Le fichier de configuration du shell n\'existe pas');
       }
 
       if (await this.isAlreadyIntegrated()) {
-        console.log('ℹ️  L\'intégration existe déjà dans .zshrc');
+        console.log('ℹ️  L\'intégration existe déjà dans votre configuration shell');
         return false;
       }
 
-      // Créer une sauvegarde de .zshrc
-      const backupPath = `${this.zshrcPath}.backup.${Date.now()}`;
-      await fs.copy(this.zshrcPath, backupPath);
+      // Déterminer le fichier de configuration
+      let configPath;
+      let reloadCommand;
+      
+      if (shellInfo.isZsh) {
+        configPath = this.zshrcPath;
+        reloadCommand = 'source ~/.zshrc';
+      } else if (shellInfo.isBash) {
+        configPath = path.join(this.homeDir, '.bashrc');
+        reloadCommand = 'source ~/.bashrc';
+      } else if (shellInfo.isFish) {
+        configPath = path.join(this.homeDir, '.config', 'fish', 'config.fish');
+        reloadCommand = 'source ~/.config/fish/config.fish';
+      }
 
-      // Ajouter la ligne d'intégration avec le chemin absolu du projet
-      const integrationLine = `\n# Alias Manager - Chargement automatique des alias\n[ -f "${this.aliasFilePath}" ] && source "${this.aliasFilePath}"\n`;
-      await fs.appendFile(this.zshrcPath, integrationLine);
+      // Créer une sauvegarde
+      const backupPath = `${configPath}.backup.${Date.now()}`;
+      await fs.copy(configPath, backupPath);
 
-      console.log('✅ Intégration ajoutée à .zshrc');
+      // Ajouter la ligne d'intégration
+      let integrationLine;
+      if (shellInfo.isFish) {
+        // Fish utilise une syntaxe différente
+        integrationLine = `\n# Alias Manager - Chargement automatique des alias\nif test -f "${this.aliasFilePath}"\n    source "${this.aliasFilePath}"\nend\n`;
+      } else {
+        // ZSH et Bash utilisent la même syntaxe
+        integrationLine = `\n# Alias Manager - Chargement automatique des alias\n[ -f "${this.aliasFilePath}" ] && source "${this.aliasFilePath}"\n`;
+      }
+      
+      await fs.appendFile(configPath, integrationLine);
+
+      console.log(`✅ Intégration ajoutée à ${path.basename(configPath)}`);
       console.log(`💾 Sauvegarde créée: ${backupPath}`);
-      console.log('🔄 Exécutez "source ~/.zshrc" ou redémarrez votre terminal pour appliquer les changements');
+      console.log(`🔄 Exécutez "${reloadCommand}" ou redémarrez votre terminal pour appliquer les changements`);
       
       return true;
     } catch (error) {
