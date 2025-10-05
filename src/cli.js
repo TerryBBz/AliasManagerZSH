@@ -12,11 +12,11 @@ const installer = new Installer();
 const options = {
   group: {
     type: 'string',
-    short: 'g'
+    short: 'g',
   },
   'show-disabled': {
-    type: 'boolean'
-  }
+    type: 'boolean',
+  },
 };
 
 async function main() {
@@ -24,7 +24,7 @@ async function main() {
     const { values, positionals } = parseArgs({
       args: process.argv.slice(2),
       options,
-      allowPositionals: true
+      allowPositionals: true,
     });
 
     const [command, ...args] = positionals;
@@ -209,29 +209,33 @@ Exemples:
 async function importFromZshrc(filePath = null) {
   try {
     console.log('📂 Import des alias depuis .zshrc...');
-    
+
     const dataManager = new DataManager();
     const importedAliases = await dataManager.importFromZshrc(filePath);
-    
-    const totalAliases = Object.values(importedAliases).reduce((total, group) => total + Object.keys(group).length, 0);
-    
+
+    const totalAliases = Object.values(importedAliases).reduce(
+      (total, group) => total + Object.keys(group).length,
+      0
+    );
+
     if (totalAliases === 0) {
       console.log('ℹ️  Aucun alias trouvé dans le fichier.');
       return;
     }
-    
-    console.log(`\n📦 ${totalAliases} alias trouvés dans ${Object.keys(importedAliases).length} groupes:`);
+
+    console.log(
+      `\n📦 ${totalAliases} alias trouvés dans ${Object.keys(importedAliases).length} groupes:`
+    );
     for (const [groupName, aliases] of Object.entries(importedAliases)) {
       console.log(`   • ${groupName}: ${Object.keys(aliases).length} alias`);
     }
-    
+
     await dataManager.mergeImportedData(importedAliases);
-    
+
     console.log('\n✅ Import terminé avec succès !');
     console.log('🔄 Rechargez votre terminal (source ~/.zshrc) pour appliquer les changements.');
-    
   } catch (error) {
-    console.error('❌ Erreur lors de l\'import:', error.message);
+    console.error("❌ Erreur lors de l'import:", error.message);
   }
 }
 
@@ -241,20 +245,23 @@ async function importFromFile(filePath) {
 
 async function previewImport(filePath = null) {
   try {
-    console.log('👀 Prévisualisation de l\'import...');
-    
+    console.log("👀 Prévisualisation de l'import...");
+
     const dataManager = new DataManager();
     const importedAliases = await dataManager.importFromZshrc(filePath);
-    
-    const totalAliases = Object.values(importedAliases).reduce((total, group) => total + Object.keys(group).length, 0);
-    
+
+    const totalAliases = Object.values(importedAliases).reduce(
+      (total, group) => total + Object.keys(group).length,
+      0
+    );
+
     if (totalAliases === 0) {
       console.log('ℹ️  Aucun alias trouvé dans le fichier.');
       return;
     }
-    
+
     console.log(`\n📦 ${totalAliases} alias seraient importés:`);
-    
+
     for (const [groupName, aliases] of Object.entries(importedAliases)) {
       console.log(`\n🔸 Groupe: ${groupName}`);
       for (const [aliasName, aliasData] of Object.entries(aliases)) {
@@ -264,9 +271,8 @@ async function previewImport(filePath = null) {
         }
       }
     }
-    
+
     console.log('\n💡 Utilisez "alias-manager import" pour effectuer l\'import réel.');
-    
   } catch (error) {
     console.error('❌ Erreur lors de la prévisualisation:', error.message);
   }
@@ -275,46 +281,45 @@ async function previewImport(filePath = null) {
 async function syncFromGit() {
   try {
     console.log('🔄 Synchronisation avec Git...');
-    
+
     const dataManager = new DataManager();
-    
+
     // Git pull dans le dossier du projet
     console.log('📥 Git pull...');
     const { execSync } = await import('child_process');
-    
+
     try {
-      const output = execSync(`git -C "${dataManager.projectDir}" pull`, { 
-        encoding: 'utf8', 
-        stdio: 'pipe' 
+      const output = execSync(`git -C "${dataManager.projectDir}" pull`, {
+        encoding: 'utf8',
+        stdio: 'pipe',
       });
       console.log('✅ Git pull terminé:', output.trim());
     } catch (gitError) {
       console.error('❌ Erreur Git pull:', gitError.message);
-      console.log('💡 Assurez-vous d\'être dans un dépôt Git avec une branche trackée.');
+      console.log("💡 Assurez-vous d'être dans un dépôt Git avec une branche trackée.");
       return;
     }
-    
+
     // Vérifier s'il y a un fichier de sync
     const fs = await import('fs-extra');
     const syncExists = await fs.default.pathExists(dataManager.syncFile);
-    
+
     if (!syncExists) {
       console.log('📝 Aucun fichier de synchronisation trouvé, création du fichier initial...');
       await createInitialSyncFile(dataManager);
       return;
     }
-    
+
     // Charger et appliquer les changements depuis le fichier de sync
     console.log('📂 Application des changements...');
     const syncData = await fs.default.readJSON(dataManager.syncFile);
-    
+
     // Appliquer les alias depuis le fichier de sync
     await dataManager.saveData(syncData);
     await dataManager.generateAliasFile(syncData);
-    
+
     console.log('✅ Synchronisation terminée !');
     console.log('🔄 Rechargez votre terminal (source ~/.zshrc) pour appliquer les changements.');
-    
   } catch (error) {
     console.error('❌ Erreur lors de la synchronisation:', error.message);
   }
@@ -325,9 +330,9 @@ async function createInitialSyncFile(dataManager) {
     // Créer le fichier de sync initial avec les données actuelles
     const currentData = await dataManager.loadData();
     const fs = await import('fs-extra');
-    
+
     await fs.default.writeJSON(dataManager.syncFile, currentData, { spaces: 2 });
-    
+
     console.log('✅ Fichier de synchronisation créé');
     console.log(`📁 Emplacement: ${dataManager.syncFile}`);
     console.log('💡 Vous pouvez maintenant committer ce fichier dans Git pour la synchronisation.');
@@ -339,22 +344,22 @@ async function createInitialSyncFile(dataManager) {
 async function setupZshrcFromTemplate() {
   try {
     console.log('🔧 Configuration du .zshrc depuis le template...');
-    
+
     const dataManager = new DataManager();
     const fs = await import('fs-extra');
     const path = await import('path');
-    
+
     // Chemin du template et du .zshrc
     const templatePath = path.default.join(dataManager.projectDir, 'configs', 'zshrc-template.txt');
     const zshrcPath = path.default.join(dataManager.homeDir, '.zshrc');
-    
+
     // Vérifier que le template existe
     const templateExists = await fs.default.pathExists(templatePath);
     if (!templateExists) {
       console.error('❌ Template .zshrc non trouvé dans configs/zshrc-template.txt');
       return;
     }
-    
+
     // Créer une sauvegarde du .zshrc existant
     const zshrcExists = await fs.default.pathExists(zshrcPath);
     if (zshrcExists) {
@@ -362,13 +367,12 @@ async function setupZshrcFromTemplate() {
       await fs.default.copy(zshrcPath, backupPath);
       console.log(`💾 Sauvegarde créée: ${backupPath}`);
     }
-    
+
     // Copier le template
     await fs.default.copy(templatePath, zshrcPath);
-    
+
     console.log('✅ .zshrc restauré depuis le template');
     console.log('🔄 Rechargez votre terminal (source ~/.zshrc) pour appliquer les changements');
-    
   } catch (error) {
     console.error('❌ Erreur lors de la configuration du .zshrc:', error.message);
   }
@@ -376,7 +380,7 @@ async function setupZshrcFromTemplate() {
 
 async function updateAliasManager() {
   try {
-    console.log('🔄 Mise à jour d\'alias-manager...');
+    console.log("🔄 Mise à jour d'alias-manager...");
 
     const fs = await import('fs-extra');
     const path = await import('path');
@@ -393,19 +397,24 @@ async function updateAliasManager() {
     // Vérifier la version npm installée
     let npmVersion = 'non installé';
     try {
-      const npmOutput = execSync('npm list -g alias-manager --depth=0', { encoding: 'utf8', stdio: 'pipe' });
+      const npmOutput = execSync('npm list -g alias-manager --depth=0', {
+        encoding: 'utf8',
+        stdio: 'pipe',
+      });
       const versionMatch = npmOutput.match(/alias-manager@(\d+\.\d+\.\d+)/);
       if (versionMatch) {
         npmVersion = versionMatch[1];
       }
     } catch (error) {
-      console.log('ℹ️  alias-manager n\'est pas installé via npm');
+      console.log("ℹ️  alias-manager n'est pas installé via npm");
     }
 
     console.log(`📦 Version npm: ${npmVersion}`);
 
     // Mettre à jour la version dans package.json si nécessaire
-    const newVersion = `${parseInt(localVersion.split('.')[0])}.${parseInt(localVersion.split('.')[1])}.${parseInt(localVersion.split('.')[2]) + 1}`;
+    const newVersion = `${parseInt(localVersion.split('.')[0])}.${parseInt(
+      localVersion.split('.')[1]
+    )}.${parseInt(localVersion.split('.')[2]) + 1}`;
 
     // Publier la nouvelle version
     console.log(`🚀 Publication de la version ${newVersion}...`);
@@ -419,7 +428,7 @@ async function updateAliasManager() {
       execSync('npm publish', {
         encoding: 'utf8',
         stdio: 'inherit',
-        cwd: projectDir
+        cwd: projectDir,
       });
       console.log(`✅ Version ${newVersion} publiée sur npm`);
     } catch (error) {
@@ -429,19 +438,22 @@ async function updateAliasManager() {
     // Installer/mettre à jour la version globale
     console.log('📥 Installation de la nouvelle version...');
     try {
-      execSync(`npm install -g alias-manager@${newVersion}`, { encoding: 'utf8', stdio: 'inherit' });
+      execSync(`npm install -g alias-manager@${newVersion}`, {
+        encoding: 'utf8',
+        stdio: 'inherit',
+      });
       console.log(`✅ Version ${newVersion} installée globalement`);
     } catch (error) {
       console.log('⚠️  Installation globale échouée, essai avec la version locale...');
       execSync('npm install -g .', {
         encoding: 'utf8',
         stdio: 'inherit',
-        cwd: projectDir
+        cwd: projectDir,
       });
     }
 
     // Corriger l'alias am dans .zshrc
-    console.log('🔧 Correction de l\'alias am dans .zshrc...');
+    console.log("🔧 Correction de l'alias am dans .zshrc...");
     const zshrcPath = path.default.join(process.env.HOME, '.zshrc');
 
     if (await fs.default.pathExists(zshrcPath)) {
@@ -466,7 +478,6 @@ async function updateAliasManager() {
     console.log('\n✅ Mise à jour terminée !');
     console.log('🔄 Rechargez votre terminal (source ~/.zshrc) pour appliquer les changements');
     console.log(`💡 Vous pouvez maintenant utiliser: am --help`);
-
   } catch (error) {
     console.error('❌ Erreur lors de la mise à jour:', error.message);
   }
