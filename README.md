@@ -84,7 +84,7 @@ alias-manager sync           # Synchroniser les alias existants
 
 # 5. Rechargement (selon votre shell)
 # Pour ZSH: source ~/.zshrc
-# Pour Bash: source ~/.bashrc  
+# Pour Bash: source ~/.bashrc
 # Pour Fish: source ~/.config/fish/config.fish
 ```
 
