@@ -8,6 +8,21 @@ Un outil CLI puissant multiplateforme pour gérer et synchroniser vos alias shel
 - **Shells supportés** : ZSH, Bash, Fish
 - **Node.js** : >= 16.0.0
 
+## 🔒 Configuration Git sécurisée
+
+⚠️ **Important** : Après avoir cloné ce dépôt, configurez votre propre dépôt Git pour éviter de pousser sur le dépôt original :
+
+```bash
+# Supprimer le remote original
+git remote remove origin
+
+# Ajouter votre propre dépôt
+git remote add origin https://github.com/VOTRE-USERNAME/VOTRE-REPO.git
+
+# Pousser vers votre dépôt
+git push -u origin main
+```
+
 ## 🚀 Installation rapide
 
 ### **Première installation**
@@ -228,4 +243,4 @@ alias-manager sync                      # Récupère automatiquement myalias
 
 ---
 
-**Développé pour macOS + ZSH avec synchronisation Git automatique** 🍎⚡🔄
+**Développé multiplateforme (Linux, macOS, Windows) avec support ZSH, Bash, Fish et synchronisation Git** 🌍⚡🔄

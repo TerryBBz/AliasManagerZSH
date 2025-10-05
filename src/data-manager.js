@@ -251,7 +251,7 @@ export class DataManager {
       const currentData = await this.loadData();
       await fs.writeJSON(this.syncFile, currentData, { spaces: 2 });
 
-      // Auto-commit et push
+      // Auto-commit local uniquement (pas de push automatique)
       const { execSync } = await import('child_process');
       
       try {
@@ -262,14 +262,14 @@ export class DataManager {
         const commitMessage = `${action}: ${details}`;
         execSync(`git -C "${this.projectDir}" commit -m "${commitMessage}"`, { stdio: 'pipe' });
         
-        // Push
-        execSync(`git -C "${this.projectDir}" push`, { stdio: 'pipe' });
-        
-        console.log(`🚀 Synchronisé avec Git: ${commitMessage}`);
+        console.log(`✅ Changements commités localement: ${commitMessage}`);
+        console.log('💡 Pour synchroniser avec votre dépôt distant:');
+        console.log('   git push origin main');
+        console.log('   (ou votre branche principale)');
         
       } catch (gitError) {
         console.log('⚠️  Mise à jour locale réussie, mais échec Git:', gitError.message);
-        console.log('💡 Vous devrez peut-être faire un commit/push manuel.');
+        console.log('💡 Vous devrez peut-être configurer votre dépôt Git.');
       }
       
     } catch (error) {
