@@ -1,0 +1,104 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📦 OH MY ZSH CONFIGURATION  
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Path to your Oh My Zsh installation
+export ZSH="$HOME/.oh-my-zsh"
+
+# Désactiver le thème Oh My Zsh pour utiliser un prompt personnalisé
+ZSH_THEME=""
+
+# Configuration des plugins
+plugins=(
+  git
+  colored-man-pages
+)
+
+# Charger Oh My Zsh
+source $ZSH/oh-my-zsh.sh
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🎨 CONFIGURATION DU PROMPT PERSONNALISÉ
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Activer la gestion des couleurs et l'expansion dynamique du prompt
+autoload -U colors && colors
+setopt PROMPT_SUBST
+
+# Fonction pour récupérer le nom de la branche Git (affiché en cyan)
+git_branch() {
+  local branch
+  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  if [ -n "$branch" ]; then
+    echo "%{$fg[cyan]%}($branch)%{$reset_color%} "
+  fi
+}
+
+# Prompt personnalisé : branche Git + chemin en magenta + symbole %
+PROMPT='$(git_branch)%{$fg[magenta]%}%~ %% %{$reset_color%}'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔧 CONFIGURATION DU PATH
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Ajouter les chemins nécessaires au PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🎪 FONCTIONS PERSONNALISÉES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Fonction d'affichage système générique
+system_info() {
+  clear
+  export TERM=${TERM:-xterm-256color}
+  width=$(tput cols)
+
+  # Vérification largeur minimum
+  if [ $width -lt 70 ]; then
+    printf "\n\033[31m⚠️  Terminal trop petit (largeur: %d colonnes)\033[0m\n" "$width"
+    printf "\033[33m💡 Veuillez élargir votre terminal à au moins 70 colonnes pour un affichage optimal\033[0m\n\n"
+    return
+  fi
+
+  # Informations système
+  os_info="macOS $(sw_vers -productVersion)"
+  arch_info="$(uname -m)"
+  shell_info="Zsh $(zsh --version | cut -d' ' -f2)"
+  date_info=$(date '+%d/%m/%Y')
+  time_info=$(date '+%H:%M:%S')
+
+  # Affichage des informations système
+  printf "\033[36m%-20s\033[0m %s\n" "Date:" "$date_info"
+  printf "\033[96m%-20s\033[0m %s\n" "Heure:" "$time_info"
+  printf "\033[94m%-20s\033[0m %s\n" "OS:" "$os_info"
+  printf "\033[34m%-20s\033[0m %s\n" "Architecture:" "$arch_info"
+  printf "\033[35m%-20s\033[0m %s\n" "Shell:" "$shell_info"
+}
+
+# Fonction pour horloge en temps réel (optionnelle)
+live_clock() {
+  while true; do
+    system_info
+    sleep 1
+  done
+}
+
+# Vérification de la largeur à l'ouverture du terminal
+check_terminal_width() {
+  local width=$(tput cols)
+  if [ $width -lt 70 ]; then
+    printf "\n\033[31m⚠️  Terminal trop petit pour afficher la bannière (largeur: %d colonnes)\033[0m\n" "$width"
+    printf "\033[33m💡 Élargissez votre terminal à au moins 70 colonnes, puis tapez 'reload'\033[0m\n\n"
+    return 1
+  fi
+  return 0
+}
+
+# Afficher la bannière au démarrage du terminal (si largeur suffisante)
+if check_terminal_width; then
+  system_info
+fi
+
+# Alias Manager - Chargement automatique des alias
+[ -f "$HOME/AliasManagerZSH/data/aliases.sh" ] && source "$HOME/AliasManagerZSH/data/aliases.sh"

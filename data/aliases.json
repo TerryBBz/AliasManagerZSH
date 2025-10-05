@@ -1,0 +1,65 @@
+{
+  "groups": {
+    "default": {
+      "hello": {
+        "cmd": "echo 'Hello World'",
+        "disabled": false
+      },
+      "clear": {
+        "cmd": "clear",
+        "disabled": false
+      }
+    },
+    "git": {
+      "gst": {
+        "cmd": "git status",
+        "description": "Git status",
+        "disabled": false
+      },
+      "gadd": {
+        "cmd": "git add .",
+        "description": "Git add all",
+        "disabled": false
+      },
+      "gcommit": {
+        "cmd": "git commit -m \"$*\"",
+        "description": "Git commit with message",
+        "disabled": false
+      },
+      "gpush": {
+        "cmd": "git push",
+        "description": "Git push",
+        "disabled": false
+      }
+    },
+    "docker": {
+      "dps": {
+        "cmd": "docker ps",
+        "description": "Docker containers",
+        "disabled": false
+      },
+      "dlog": {
+        "cmd": "docker logs -f",
+        "description": "Docker logs follow",
+        "disabled": false
+      }
+    },
+    "system": {
+      "ll": {
+        "cmd": "ls -la",
+        "description": "List files detailed",
+        "disabled": false
+      },
+      "la": {
+        "cmd": "ls -A",
+        "description": "List all files",
+        "disabled": false
+      },
+      "..": {
+        "cmd": "cd ..",
+        "description": "Go up one directory",
+        "disabled": false
+      }
+    }
+  }
+}

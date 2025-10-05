@@ -1,0 +1,30 @@
+{
+  "name": "alias-manager-zsh",
+  "version": "1.0.3",
+  "description": "CLI tool to manage ZSH aliases with groups, enable/disable, and backup/restore functionality - Clean version for public use",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "alias-manager": "./src/cli.js",
+    "am": "./bin/index.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "echo \"No tests specified yet\" && exit 0"
+  },
+  "keywords": [
+    "zsh",
+    "aliases",
+    "cli",
+    "terminal",
+    "shell"
+  ],
+  "author": "MacTB",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^11.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
