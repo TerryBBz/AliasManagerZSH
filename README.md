@@ -12,6 +12,14 @@ Un outil CLI puissant multiplateforme pour gérer et synchroniser vos alias shel
 
 ⚠️ **Important** : Après avoir cloné ce dépôt, configurez votre propre dépôt Git pour éviter de pousser sur le dépôt original :
 
+### **1. Créer votre propre dépôt GitHub**
+
+1. Allez sur [GitHub.com](https://github.com) et créez un nouveau dépôt
+2. Nommez-le par exemple `mon-alias-manager` ou `mes-alias`
+3. **Ne pas** initialiser avec README, .gitignore ou licence (le projet en a déjà)
+
+### **2. Configurer le remote Git**
+
 ```bash
 # Supprimer le remote original
 git remote remove origin
@@ -21,6 +29,35 @@ git remote add origin https://github.com/VOTRE-USERNAME/VOTRE-REPO.git
 
 # Pousser vers votre dépôt
 git push -u origin main
+```
+
+### **3. Configuration pour l'auto-push**
+
+L'outil utilise le fichier `configs/sync.json` pour la synchronisation. Pour activer l'auto-push :
+
+```bash
+# Vérifier que votre dépôt est bien configuré
+git remote -v
+
+# Tester la synchronisation
+alias-manager add test "echo hello"
+# → Cela va commiter localement et vous guider pour le push
+```
+
+### **4. Synchronisation entre machines**
+
+Sur vos autres machines :
+
+```bash
+# Cloner VOTRE dépôt (pas le dépôt original)
+git clone https://github.com/VOTRE-USERNAME/VOTRE-REPO.git
+cd VOTRE-REPO
+
+# Installer l'outil
+npm install && npm link
+
+# Synchroniser les alias
+alias-manager sync
 ```
 
 ## 🚀 Installation rapide
@@ -35,14 +72,19 @@ cd AliasManagerZSH
 # 2. Installer les dépendances
 npm install && npm link
 
-# 3. Configurer votre environnement
+# 3. 🔒 CONFIGURATION GIT SÉCURISÉE (OBLIGATOIRE)
+git remote remove origin
+git remote add origin https://github.com/VOTRE-USERNAME/VOTRE-REPO.git
+git push -u origin main
+
+# 4. Configurer votre environnement
 alias-manager setup-zshrc    # Restaurer .zshrc avec vos fonctions (ZSH uniquement)
 alias-manager install        # Ajouter l'intégration des alias (détection automatique du shell)
 alias-manager sync           # Synchroniser les alias existants
 
-# 4. Rechargement (selon votre shell)
+# 5. Rechargement (selon votre shell)
 # Pour ZSH: source ~/.zshrc
-# Pour Bash: source ~/.bashrc
+# Pour Bash: source ~/.bashrc  
 # Pour Fish: source ~/.config/fish/config.fish
 ```
 
